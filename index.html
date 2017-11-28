@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-    <!-- Custom styles for this template -->
+	
+	<!-- Custom styles for this template -->
     <style>
         h4 {
             margin-top: 25px;
@@ -71,7 +71,7 @@
             </div>
             <div class="panel-body">
                 <ul>
-                    <li>Gets your comments on /r/churning from the past 6 months</li>
+                    <li>Gets your comments on /r/churning from the past 6 months. Reddit only gives the last 1000 comments total so if you are a very active user, this might not be accurate</li>
                     <li>For each of your comments, check the comment score</li>
                     <li>If comment score>0, add (comment score-1) to your churning karma otherwise add -1.</li>
                 </ul>
@@ -116,7 +116,7 @@
             $("#inputform").slideUp();
 
             $("#statusline").removeClass('hidden');
-            $("#outputtable").removeClass('hidden');
+			$("#outputtable").removeClass('hidden');
 
             process();
 
@@ -155,7 +155,7 @@
                             //update table
                             var commentLink = $("<a />", {
                                 href: "https://www.reddit.com/" + this.data['permalink'],
-                                text: ("" + this.data['body']).trunc(50),
+                                text: ("" + this.data['body']).trunc(125),
                                 target: "_blank"
                             });
 
@@ -169,7 +169,7 @@
                                 )
                         }
                     });
-                    if (obj.data.after.length > 0 && !finishedSixMonths) {
+                    if (obj.data.after != null && !finishedSixMonths) {
                         var callprocess = process(obj.data.after);
                         setTimeout(callprocess, 1000);
                     } else
