@@ -1,5 +1,196 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Churning Karma</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Custom styles for this template -->
+    <style>
+        h4 {
+            margin-top: 25px;
+        }
+        
+        .row {
+            margin-bottom: 20px;
+        }
+        
+        .row .row {
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+        
+        [class*="col-"] {
+            padding-top: 15px;
+            padding-bottom: 15px;
+            background-color: #eee;
+            background-color: rgba(86, 61, 124, .15);
+            border: 1px solid #ddd;
+            border: 1px solid rgba(86, 61, 124, .2);
+        }
+        
+        hr {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+    </style>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
 <body>
-<input type="text" placeholder="Enter reddit username - Case does not matter" />
+    <div class="container">
+
+        <div class="page-header">
+            <h1>Churning Karma</h1>
+            <p class="lead">Get your Churning Karma to check if you are eligible to post in the referral threads</p>
+        </div>
+
+        <div class="panel panel-success" id="warning">
+            <div class="panel-heading">
+                <h3 class="panel-title">How does it work?</h3>
+            </div>
+            <div class="panel-body">
+                <ul>
+                    <li>Gets your comments on /r/churning from the past 6 months</li>
+                    <li>For each of your comments, check the comment score</li>
+                    <li>If comment score>0, add (comment score-1) to your churning karma otherwise add -1.</li>
+                </ul>
+                <p><strong>Everything is fetched locally by your browser so don't abuse this by checking everyone's score. Doing so might cause reddit to place limits on you.</strong></p>
+
+            </div>
+        </div>
+        <form class="form-inline text-center" id="inputform" onsubmit="return false;">
+            <input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0" id="username" placeholder="Reddit Username">
+            <button type="submit" class="btn btn-primary" onclick="start();">Submit</button>
+        </form>
+        <p id="statusline" class="text-center hidden">Fetched <span id="commentcount">0</span> total comments... <i class="fa fa-spinner fa-spin"></i></p>
+        <div class="panel panel-success text-center hidden" id="resultpanel">
+            <div class="panel-body">
+                <p>Your Churning Karma is:</p>
+                <h1 id="score"></h1>
+            </div>
+        </div>
+        <hr>
+
+        <table class="table table-striped hidden" id="outputtable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Comment</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+    </div>
+    <!-- /container -->
+    <script>
+        var karma = 0;
+        var commentCount = 0;
+        var finishedSixMonths = false;
+
+        function start() {
+            $("#warning").slideUp();
+            $("#inputform").slideUp();
+
+            $("#statusline").removeClass('hidden');
+            $("#outputtable").removeClass('hidden');
+
+            process();
+
+            return;
+        }
+
+        function process(afterComment) {
+
+            $.getJSON('https://www.reddit.com/user/' + $("#username").val() + '/comments.json', {
+                    sort: "new",
+                    limit: "100",
+                    after: afterComment,
+                    raw_json: "1"
+                },
+                function(obj) {
+                    commentCount += obj.data.children.length;
+                    $("#commentcount").html(commentCount);
+                    UTCSixMonthsAgo = ((new Date().getTime()) / 1000) - 15552000;
+
+                    $.each(obj.data.children, function() {
+                        if (this.data['subreddit'] == "churning") {
+
+                            //Did we finish 6 months?
+                            if (this.data['created_utc'] < UTCSixMonthsAgo) {
+                                finishedSixMonths = true;
+                                return false;
+                            }
+
+                            //calculate score
+                            var score = this.data['score'];
+                            if (score > 0) score -= 1;
+                            else
+                                score = -1;
+                            karma += score;
+
+                            //update table
+                            var commentLink = $("<a />", {
+                                href: "https://www.reddit.com/" + this.data['permalink'],
+                                text: ("" + this.data['body']).trunc(50),
+                                target: "_blank"
+                            });
+
+                            $("#outputtable > tbody > tr").length
+
+                            $("#outputtable").find('tbody')
+                                .append($('<tr>')
+                                    .append($('<td>').append($("#outputtable > tbody > tr").length + 1))
+                                    .append($('<td>').append(commentLink))
+                                    .append($('<td>').append(score))
+                                )
+                        }
+                    });
+                    if (obj.data.after.length > 0 && !finishedSixMonths) {
+                        var callprocess = process(obj.data.after);
+                        setTimeout(callprocess, 1000);
+                    } else
+                        end();
+                });
+
+            return;
+        }
+
+        function end() {
+            $("#statusline").slideUp();
+            $("#score").text(karma);
+            $("#resultpanel").removeClass('hidden');
+            return;
+        }
+
+        String.prototype.trunc =
+            function(n) {
+                return this.substr(0, n - 1) + (this.length > n ? '...' : '');
+            };
+    </script>
 </body>
+
 </html>
