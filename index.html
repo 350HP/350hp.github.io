@@ -86,7 +86,7 @@
                 <ul>
                     <li>Gets your comments on /r/churning from the past 6 months. Reddit only gives the last 1000 comments total so if you are a very active user, this might not be accurate</li>
                     <li>For each of your comments, check the comment score</li>
-                    <li>If comment score>0, add (comment score-1) to your churning karma otherwise add -1.</li>
+                    <li>If comment score>0, add (comment score-1). Otherwise the comment does not add anything to your churning karma.</li>
                 </ul>
                 <p><strong>Everything is fetched locally by your browser so don't abuse this by checking everyone's score. Doing so might cause reddit to place limits on you.</strong></p>
 
@@ -162,7 +162,7 @@
                             var score = this.data['score'];
                             if (score > 0) score -= 1;
                             else
-                                score = -1;
+                                score = 0;
                             karma += score;
 
                             //update table
