@@ -91,7 +91,7 @@
             </div>
             <div class="panel-body">
                 <ul>
-                    <li>Gets your comments on /r/churning from the past 6 months. Reddit only gives the last 1000 comments total so if you are a very active user, this might not be accurate</li>
+                    <li>Gets your comments on /r/churning from the past 3 months. Reddit only gives the last 1000 comments total so if you are a very active user, this might not be accurate</li>
                     <li>For each of your comments, check the comment score</li>
                     <li>If comment score>0, add (comment score-1). Otherwise the comment does not add anything to your churning karma.</li>
                 </ul>
@@ -129,7 +129,7 @@
     <script>
         var karma = 0;
         var commentCount = 0;
-        var finishedSixMonths = false;
+        var finishedThreeMonths = false;
 
         function start() {
             $("#warning").slideUp();
@@ -154,14 +154,14 @@
                 function(obj) {
                     commentCount += obj.data.children.length;
                     $("#commentcount").html(commentCount);
-                    UTCSixMonthsAgo = ((new Date().getTime()) / 1000) - 15552000;
+                    UTCThreeMonthsAgo = ((new Date().getTime()) / 1000) - 7776000;
 
                     $.each(obj.data.children, function() {
                         if (this.data['subreddit'] == "churning") {
 
-                            //Did we finish 6 months?
-                            if (this.data['created_utc'] < UTCSixMonthsAgo) {
-                                finishedSixMonths = true;
+                            //Did we finish 3 months?
+                            if (this.data['created_utc'] < UTCThreeMonthsAgo) {
+                                finishedThreeMonths = true;
                                 return false;
                             }
 
@@ -189,7 +189,7 @@
                                 )
                         }
                     });
-                    if (obj.data.after != null && !finishedSixMonths) {
+                    if (obj.data.after != null && !finishedThreeMonths) {
                         var callprocess = process(obj.data.after);
                         setTimeout(callprocess, 1000);
                     } else
